@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:matrix_terminal/core/background/background_service.dart';
+import 'package:matrix_terminal/core/notifications/terminal_monitor.dart';
 import 'package:matrix_terminal/core/ssh/ssh_service.dart';
 import 'package:matrix_terminal/core/storage/database.dart';
 import 'package:matrix_terminal/features/host/providers/host_provider.dart';
@@ -44,6 +45,19 @@ class SessionManagerNotifier extends Notifier<SessionManagerState> {
       activeIndex: newSessions.length - 1,
     );
 
+    // Wire up notification monitor
+    final monitor = TerminalMonitor.instance;
+    monitor.watchSession(session);
+    final db = ref.read(databaseProvider);
+    session.onOutputForMonitor = (text) async {
+      final patterns = await db.getAllNotificationPatterns();
+      await monitor.checkOutput(
+        text: text,
+        hostLabel: host.label,
+        patterns: patterns,
+      );
+    };
+
     await session.connect();
 
     // Update last connected time
@@ -62,6 +76,7 @@ class SessionManagerNotifier extends Notifier<SessionManagerState> {
   void closeSession(int index) {
     if (index < 0 || index >= state.sessions.length) return;
 
+    TerminalMonitor.instance.unwatchSession(state.sessions[index].id);
     state.sessions[index].close();
     final newSessions = [...state.sessions]..removeAt(index);
     int newIndex = state.activeIndex;

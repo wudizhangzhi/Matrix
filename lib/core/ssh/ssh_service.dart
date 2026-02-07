@@ -18,6 +18,9 @@ class SshSession {
   SessionState state = SessionState.connecting;
   String? errorMessage;
 
+  /// Called with decoded terminal output for notification monitoring.
+  void Function(String text)? onOutputForMonitor;
+
   final _stateController = StreamController<SessionState>.broadcast();
   Stream<SessionState> get stateStream => _stateController.stream;
 
@@ -67,7 +70,11 @@ class SshSession {
 
       // Pipe SSH stdout to terminal
       _shell!.stdout.listen(
-        (data) => terminal.write(utf8.decode(data, allowMalformed: true)),
+        (data) {
+          final text = utf8.decode(data, allowMalformed: true);
+          terminal.write(text);
+          onOutputForMonitor?.call(text);
+        },
         onDone: () {
           state = SessionState.disconnected;
           _stateController.add(state);
