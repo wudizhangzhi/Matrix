@@ -6,6 +6,7 @@ import 'package:matrix_terminal/features/settings/screens/settings_screen.dart';
 import 'package:matrix_terminal/features/terminal/providers/session_provider.dart';
 import 'package:matrix_terminal/features/terminal/widgets/session_tab_bar.dart';
 import 'package:matrix_terminal/features/terminal/widgets/terminal_toolbar.dart';
+import 'package:matrix_terminal/features/terminal/widgets/toolbar_editor.dart';
 import 'package:xterm/xterm.dart' as xterm;
 
 class TerminalScreen extends ConsumerWidget {
@@ -75,13 +76,7 @@ class TerminalScreen extends ConsumerWidget {
                   context: context,
                   backgroundColor: AppColors.surface,
                   isScrollControlled: true,
-                  builder: (_) => const SizedBox(
-                    height: 300,
-                    child: Center(
-                      child: Text('Toolbar Editor (coming soon)',
-                          style: TextStyle(color: AppColors.textPrimary)),
-                    ),
-                  ),
+                  builder: (_) => const ToolbarEditor(),
                 );
               },
             ),

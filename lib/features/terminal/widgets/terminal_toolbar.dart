@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:matrix_terminal/app/theme.dart';
 import 'package:matrix_terminal/features/terminal/models/toolbar_button.dart';
