@@ -63,17 +63,23 @@ class TerminalMonitor with WidgetsBindingObserver {
           await NotificationService.showConnectionNotification(
             title: 'Disconnected',
             body: '$hostLabel has disconnected',
+            hostname: hostLabel,
+            status: 'disconnected',
           );
         } else if (state == SessionState.connected &&
             previousState != SessionState.connected) {
           await NotificationService.showConnectionNotification(
             title: 'Connected',
             body: '$hostLabel is now connected',
+            hostname: hostLabel,
+            status: 'connected',
           );
         } else if (state == SessionState.error) {
           await NotificationService.showConnectionNotification(
             title: 'Connection Error',
             body: '$hostLabel: ${session.errorMessage ?? "Unknown error"}',
+            hostname: hostLabel,
+            status: 'error',
           );
         }
       }
@@ -108,6 +114,7 @@ class TerminalMonitor with WidgetsBindingObserver {
           await NotificationService.showCommandNotification(
             title: 'Command Completed',
             body: '$hostLabel: command finished',
+            hostname: hostLabel,
           );
         }
       } catch (_) {

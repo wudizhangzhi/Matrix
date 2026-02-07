@@ -1,4 +1,5 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:matrix_terminal/core/notifications/super_island_service.dart';
 
 class NotificationService {
   static final _plugin = FlutterLocalNotificationsPlugin();
@@ -44,13 +45,32 @@ class NotificationService {
     _initialized = true;
   }
 
+  /// Show a connection status notification.
+  /// Tries Super Island first on Xiaomi devices, falls back to standard.
   static Future<void> showConnectionNotification({
     required String title,
     required String body,
+    String? hostname,
+    String? status,
   }) async {
     await init();
+    final id = _notificationId++;
+
+    // Try Super Island on Xiaomi HyperOS
+    if (hostname != null && status != null) {
+      final shown = await SuperIslandService.showConnectionNotification(
+        notificationId: id,
+        title: title,
+        body: body,
+        hostname: hostname,
+        status: status,
+      );
+      if (shown) return;
+    }
+
+    // Fallback to standard notification
     await _plugin.show(
-      _notificationId++,
+      id,
       title,
       body,
       const NotificationDetails(
@@ -64,13 +84,30 @@ class NotificationService {
     );
   }
 
+  /// Show a command completion notification.
+  /// Tries Super Island first on Xiaomi devices, falls back to standard.
   static Future<void> showCommandNotification({
     required String title,
     required String body,
+    String? hostname,
   }) async {
     await init();
+    final id = _notificationId++;
+
+    // Try Super Island on Xiaomi HyperOS
+    if (hostname != null) {
+      final shown = await SuperIslandService.showCommandNotification(
+        notificationId: id,
+        title: title,
+        body: body,
+        hostname: hostname,
+      );
+      if (shown) return;
+    }
+
+    // Fallback to standard notification
     await _plugin.show(
-      _notificationId++,
+      id,
       title,
       body,
       const NotificationDetails(
