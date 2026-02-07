@@ -6,6 +6,7 @@ import 'package:matrix_terminal/features/settings/screens/settings_screen.dart';
 import 'package:matrix_terminal/features/terminal/providers/session_provider.dart';
 import 'package:matrix_terminal/features/terminal/widgets/session_tab_bar.dart';
 import 'package:matrix_terminal/features/terminal/widgets/terminal_toolbar.dart';
+import 'package:matrix_terminal/features/terminal/providers/toolbar_provider.dart';
 import 'package:matrix_terminal/features/terminal/widgets/toolbar_editor.dart';
 import 'package:xterm/xterm.dart' as xterm;
 
@@ -18,6 +19,14 @@ class TerminalScreen extends ConsumerWidget {
     final sessions = sessionState.sessions;
     final activeSession = sessionState.activeSession;
     final fontSize = ref.watch(fontSizeProvider);
+
+    ref.listen(savedProfileIdProvider, (_, next) {
+      next.whenData((id) {
+        if (ref.read(activeToolbarProfileIdProvider) != id) {
+          ref.read(activeToolbarProfileIdProvider.notifier).state = id;
+        }
+      });
+    });
 
     if (sessions.isEmpty) {
       return Scaffold(

@@ -98,3 +98,7 @@ class ToolbarProfileService {
     return prefs.getInt(_activeProfileKey) ?? -1;
   }
 }
+
+final savedProfileIdProvider = FutureProvider<int>((ref) async {
+  return ToolbarProfileService.loadActiveProfileId();
+});
