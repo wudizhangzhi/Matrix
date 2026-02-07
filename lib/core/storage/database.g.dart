@@ -1387,6 +1387,307 @@ class ToolbarProfilesCompanion extends UpdateCompanion<ToolbarProfile> {
   }
 }
 
+class $NotificationPatternsTable extends NotificationPatterns
+    with TableInfo<$NotificationPatternsTable, NotificationPattern> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $NotificationPatternsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _patternMeta = const VerificationMeta(
+    'pattern',
+  );
+  @override
+  late final GeneratedColumn<String> pattern = GeneratedColumn<String>(
+    'pattern',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _enabledMeta = const VerificationMeta(
+    'enabled',
+  );
+  @override
+  late final GeneratedColumn<bool> enabled = GeneratedColumn<bool>(
+    'enabled',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("enabled" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, pattern, title, enabled];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'notification_patterns';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<NotificationPattern> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('pattern')) {
+      context.handle(
+        _patternMeta,
+        pattern.isAcceptableOrUnknown(data['pattern']!, _patternMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_patternMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('enabled')) {
+      context.handle(
+        _enabledMeta,
+        enabled.isAcceptableOrUnknown(data['enabled']!, _enabledMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  NotificationPattern map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return NotificationPattern(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      pattern: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}pattern'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      enabled: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}enabled'],
+      )!,
+    );
+  }
+
+  @override
+  $NotificationPatternsTable createAlias(String alias) {
+    return $NotificationPatternsTable(attachedDatabase, alias);
+  }
+}
+
+class NotificationPattern extends DataClass
+    implements Insertable<NotificationPattern> {
+  final int id;
+  final String pattern;
+  final String title;
+  final bool enabled;
+  const NotificationPattern({
+    required this.id,
+    required this.pattern,
+    required this.title,
+    required this.enabled,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['pattern'] = Variable<String>(pattern);
+    map['title'] = Variable<String>(title);
+    map['enabled'] = Variable<bool>(enabled);
+    return map;
+  }
+
+  NotificationPatternsCompanion toCompanion(bool nullToAbsent) {
+    return NotificationPatternsCompanion(
+      id: Value(id),
+      pattern: Value(pattern),
+      title: Value(title),
+      enabled: Value(enabled),
+    );
+  }
+
+  factory NotificationPattern.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return NotificationPattern(
+      id: serializer.fromJson<int>(json['id']),
+      pattern: serializer.fromJson<String>(json['pattern']),
+      title: serializer.fromJson<String>(json['title']),
+      enabled: serializer.fromJson<bool>(json['enabled']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'pattern': serializer.toJson<String>(pattern),
+      'title': serializer.toJson<String>(title),
+      'enabled': serializer.toJson<bool>(enabled),
+    };
+  }
+
+  NotificationPattern copyWith({
+    int? id,
+    String? pattern,
+    String? title,
+    bool? enabled,
+  }) => NotificationPattern(
+    id: id ?? this.id,
+    pattern: pattern ?? this.pattern,
+    title: title ?? this.title,
+    enabled: enabled ?? this.enabled,
+  );
+  NotificationPattern copyWithCompanion(NotificationPatternsCompanion data) {
+    return NotificationPattern(
+      id: data.id.present ? data.id.value : this.id,
+      pattern: data.pattern.present ? data.pattern.value : this.pattern,
+      title: data.title.present ? data.title.value : this.title,
+      enabled: data.enabled.present ? data.enabled.value : this.enabled,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NotificationPattern(')
+          ..write('id: $id, ')
+          ..write('pattern: $pattern, ')
+          ..write('title: $title, ')
+          ..write('enabled: $enabled')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, pattern, title, enabled);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is NotificationPattern &&
+          other.id == this.id &&
+          other.pattern == this.pattern &&
+          other.title == this.title &&
+          other.enabled == this.enabled);
+}
+
+class NotificationPatternsCompanion
+    extends UpdateCompanion<NotificationPattern> {
+  final Value<int> id;
+  final Value<String> pattern;
+  final Value<String> title;
+  final Value<bool> enabled;
+  const NotificationPatternsCompanion({
+    this.id = const Value.absent(),
+    this.pattern = const Value.absent(),
+    this.title = const Value.absent(),
+    this.enabled = const Value.absent(),
+  });
+  NotificationPatternsCompanion.insert({
+    this.id = const Value.absent(),
+    required String pattern,
+    required String title,
+    this.enabled = const Value.absent(),
+  }) : pattern = Value(pattern),
+       title = Value(title);
+  static Insertable<NotificationPattern> custom({
+    Expression<int>? id,
+    Expression<String>? pattern,
+    Expression<String>? title,
+    Expression<bool>? enabled,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (pattern != null) 'pattern': pattern,
+      if (title != null) 'title': title,
+      if (enabled != null) 'enabled': enabled,
+    });
+  }
+
+  NotificationPatternsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? pattern,
+    Value<String>? title,
+    Value<bool>? enabled,
+  }) {
+    return NotificationPatternsCompanion(
+      id: id ?? this.id,
+      pattern: pattern ?? this.pattern,
+      title: title ?? this.title,
+      enabled: enabled ?? this.enabled,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (pattern.present) {
+      map['pattern'] = Variable<String>(pattern.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (enabled.present) {
+      map['enabled'] = Variable<bool>(enabled.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NotificationPatternsCompanion(')
+          ..write('id: $id, ')
+          ..write('pattern: $pattern, ')
+          ..write('title: $title, ')
+          ..write('enabled: $enabled')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -1395,6 +1696,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $ToolbarProfilesTable toolbarProfiles = $ToolbarProfilesTable(
     this,
   );
+  late final $NotificationPatternsTable notificationPatterns =
+      $NotificationPatternsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1403,6 +1706,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     hostGroups,
     hosts,
     toolbarProfiles,
+    notificationPatterns,
   ];
 }
 
@@ -2340,6 +2644,197 @@ typedef $$ToolbarProfilesTableProcessedTableManager =
       ToolbarProfile,
       PrefetchHooks Function()
     >;
+typedef $$NotificationPatternsTableCreateCompanionBuilder =
+    NotificationPatternsCompanion Function({
+      Value<int> id,
+      required String pattern,
+      required String title,
+      Value<bool> enabled,
+    });
+typedef $$NotificationPatternsTableUpdateCompanionBuilder =
+    NotificationPatternsCompanion Function({
+      Value<int> id,
+      Value<String> pattern,
+      Value<String> title,
+      Value<bool> enabled,
+    });
+
+class $$NotificationPatternsTableFilterComposer
+    extends Composer<_$AppDatabase, $NotificationPatternsTable> {
+  $$NotificationPatternsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get pattern => $composableBuilder(
+    column: $table.pattern,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get enabled => $composableBuilder(
+    column: $table.enabled,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$NotificationPatternsTableOrderingComposer
+    extends Composer<_$AppDatabase, $NotificationPatternsTable> {
+  $$NotificationPatternsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get pattern => $composableBuilder(
+    column: $table.pattern,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get enabled => $composableBuilder(
+    column: $table.enabled,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$NotificationPatternsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $NotificationPatternsTable> {
+  $$NotificationPatternsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get pattern =>
+      $composableBuilder(column: $table.pattern, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<bool> get enabled =>
+      $composableBuilder(column: $table.enabled, builder: (column) => column);
+}
+
+class $$NotificationPatternsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $NotificationPatternsTable,
+          NotificationPattern,
+          $$NotificationPatternsTableFilterComposer,
+          $$NotificationPatternsTableOrderingComposer,
+          $$NotificationPatternsTableAnnotationComposer,
+          $$NotificationPatternsTableCreateCompanionBuilder,
+          $$NotificationPatternsTableUpdateCompanionBuilder,
+          (
+            NotificationPattern,
+            BaseReferences<
+              _$AppDatabase,
+              $NotificationPatternsTable,
+              NotificationPattern
+            >,
+          ),
+          NotificationPattern,
+          PrefetchHooks Function()
+        > {
+  $$NotificationPatternsTableTableManager(
+    _$AppDatabase db,
+    $NotificationPatternsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$NotificationPatternsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$NotificationPatternsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$NotificationPatternsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> pattern = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<bool> enabled = const Value.absent(),
+              }) => NotificationPatternsCompanion(
+                id: id,
+                pattern: pattern,
+                title: title,
+                enabled: enabled,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String pattern,
+                required String title,
+                Value<bool> enabled = const Value.absent(),
+              }) => NotificationPatternsCompanion.insert(
+                id: id,
+                pattern: pattern,
+                title: title,
+                enabled: enabled,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$NotificationPatternsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $NotificationPatternsTable,
+      NotificationPattern,
+      $$NotificationPatternsTableFilterComposer,
+      $$NotificationPatternsTableOrderingComposer,
+      $$NotificationPatternsTableAnnotationComposer,
+      $$NotificationPatternsTableCreateCompanionBuilder,
+      $$NotificationPatternsTableUpdateCompanionBuilder,
+      (
+        NotificationPattern,
+        BaseReferences<
+          _$AppDatabase,
+          $NotificationPatternsTable,
+          NotificationPattern
+        >,
+      ),
+      NotificationPattern,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -2350,4 +2845,6 @@ class $AppDatabaseManager {
       $$HostsTableTableManager(_db, _db.hosts);
   $$ToolbarProfilesTableTableManager get toolbarProfiles =>
       $$ToolbarProfilesTableTableManager(_db, _db.toolbarProfiles);
+  $$NotificationPatternsTableTableManager get notificationPatterns =>
+      $$NotificationPatternsTableTableManager(_db, _db.notificationPatterns);
 }

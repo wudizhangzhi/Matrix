@@ -43,7 +43,14 @@ class ToolbarProfiles extends Table {
   TextColumn get buttons => text()();
 }
 
-@DriftDatabase(tables: [Hosts, HostGroups, ToolbarProfiles])
+class NotificationPatterns extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get pattern => text()();
+  TextColumn get title => text()();
+  BoolColumn get enabled => boolean().withDefault(const Constant(true))();
+}
+
+@DriftDatabase(tables: [Hosts, HostGroups, ToolbarProfiles, NotificationPatterns])
 class AppDatabase extends _$AppDatabase {
   AppDatabase._() : super(_openConnection());
 
@@ -51,7 +58,7 @@ class AppDatabase extends _$AppDatabase {
   static AppDatabase get instance => _instance ??= AppDatabase._();
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -59,6 +66,9 @@ class AppDatabase extends _$AppDatabase {
         onUpgrade: (m, from, to) async {
           if (from < 2) {
             await m.createTable(toolbarProfiles);
+          }
+          if (from < 3) {
+            await m.createTable(notificationPatterns);
           }
         },
       );
@@ -115,6 +125,22 @@ class AppDatabase extends _$AppDatabase {
 
   Future<void> deleteToolbarProfile(int id) =>
       (delete(toolbarProfiles)..where((p) => p.id.equals(id))).go();
+
+  Future<List<NotificationPattern>> getAllNotificationPatterns() =>
+      select(notificationPatterns).get();
+
+  Stream<List<NotificationPattern>> watchNotificationPatterns() =>
+      select(notificationPatterns).watch();
+
+  Future<void> insertNotificationPattern(NotificationPatternsCompanion p) =>
+      into(notificationPatterns).insert(p);
+
+  Future<void> updateNotificationPattern(NotificationPatternsCompanion p) =>
+      (update(notificationPatterns)..where((t) => t.id.equals(p.id.value)))
+          .write(p);
+
+  Future<void> deleteNotificationPattern(int id) =>
+      (delete(notificationPatterns)..where((t) => t.id.equals(id))).go();
 }
 
 LazyDatabase _openConnection() {
