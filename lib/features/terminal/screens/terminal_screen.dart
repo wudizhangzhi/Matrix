@@ -4,7 +4,6 @@ import 'package:matrix_terminal/app/theme.dart';
 import 'package:matrix_terminal/core/ssh/ssh_service.dart';
 import 'package:matrix_terminal/features/settings/screens/settings_screen.dart';
 import 'package:matrix_terminal/features/terminal/providers/session_provider.dart';
-import 'package:matrix_terminal/features/terminal/widgets/input_bar.dart';
 import 'package:matrix_terminal/features/terminal/widgets/session_tab_bar.dart';
 import 'package:matrix_terminal/features/terminal/widgets/terminal_toolbar.dart';
 import 'package:xterm/xterm.dart' as xterm;
@@ -45,9 +44,6 @@ class TerminalScreen extends ConsumerWidget {
                 }
               },
             ),
-            TerminalToolbar(
-              onKey: (seq) => activeSession?.writeText(seq),
-            ),
             Expanded(
               child: IndexedStack(
                 index: sessionState.activeIndex,
@@ -61,7 +57,6 @@ class TerminalScreen extends ConsumerWidget {
                           fontFamily: 'JetBrainsMono',
                         ),
                       ),
-                      // Connection state overlay
                       _ConnectionOverlay(
                         session: session,
                         onRetry: () async {
@@ -73,8 +68,8 @@ class TerminalScreen extends ConsumerWidget {
                 }).toList(),
               ),
             ),
-            InputBar(
-              onSubmit: (text) => activeSession?.writeText(text),
+            TerminalToolbar(
+              onKey: (seq) => activeSession?.writeText(seq),
             ),
           ],
         ),

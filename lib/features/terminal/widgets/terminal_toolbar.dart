@@ -15,13 +15,15 @@ class TerminalToolbar extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         child: Row(
           children: [
+            _btn('Enter', '\r', highlight: true),
             _btn('Esc', '\x1b'),
             _btn('Tab', '\t'),
+            _btn('Ctrl-C', '\x03'),
             const SizedBox(width: 8),
-            _btn('Up', '\x1b[A'),
-            _btn('Down', '\x1b[B'),
-            _btn('Left', '\x1b[D'),
-            _btn('Right', '\x1b[C'),
+            _btn('\u2190', '\x1b[D'),
+            _btn('\u2192', '\x1b[C'),
+            _btn('\u2191', '\x1b[A'),
+            _btn('\u2193', '\x1b[B'),
             const SizedBox(width: 8),
             _btn('Home', '\x1b[H'),
             _btn('End', '\x1b[F'),
@@ -33,7 +35,7 @@ class TerminalToolbar extends StatelessWidget {
     );
   }
 
-  Widget _btn(String label, String seq) {
+  Widget _btn(String label, String seq, {bool highlight = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 2),
       child: Material(
@@ -46,8 +48,8 @@ class TerminalToolbar extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             child: Text(
               label,
-              style: const TextStyle(
-                color: AppColors.textPrimary,
+              style: TextStyle(
+                color: highlight ? AppColors.primary : AppColors.textPrimary,
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
               ),
