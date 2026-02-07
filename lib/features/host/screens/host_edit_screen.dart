@@ -20,6 +20,8 @@ class _HostEditScreenState extends ConsumerState<HostEditScreen> {
   late final TextEditingController _portCtrl;
   late final TextEditingController _usernameCtrl;
   late final TextEditingController _passwordCtrl;
+  late final TextEditingController _privateKeyCtrl;
+  late final TextEditingController _totpSecretCtrl;
   String _authType = 'password';
   String? _selectedGroupId;
 
@@ -35,6 +37,8 @@ class _HostEditScreenState extends ConsumerState<HostEditScreen> {
     _usernameCtrl =
         TextEditingController(text: widget.host?.username ?? 'root');
     _passwordCtrl = TextEditingController();
+    _privateKeyCtrl = TextEditingController();
+    _totpSecretCtrl = TextEditingController();
     _authType = widget.host?.authType ?? 'password';
     _selectedGroupId = widget.host?.groupId;
   }
@@ -46,6 +50,8 @@ class _HostEditScreenState extends ConsumerState<HostEditScreen> {
     _portCtrl.dispose();
     _usernameCtrl.dispose();
     _passwordCtrl.dispose();
+    _privateKeyCtrl.dispose();
+    _totpSecretCtrl.dispose();
     super.dispose();
   }
 
@@ -104,6 +110,41 @@ class _HostEditScreenState extends ConsumerState<HostEditScreen> {
             if (_authType == 'password')
               _buildField('Password', _passwordCtrl, '',
                   obscure: true, required: !_isEditing),
+            if (_authType == 'privateKey') ...[
+              TextFormField(
+                controller: _privateKeyCtrl,
+                maxLines: 5,
+                style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontFamily: 'JetBrainsMono',
+                    fontSize: 12),
+                decoration: const InputDecoration(
+                  labelText: 'Private Key (PEM)',
+                  hintText: '-----BEGIN OPENSSH PRIVATE KEY-----\n...',
+                  alignLabelWithHint: true,
+                ),
+                validator: !_isEditing
+                    ? (v) => (v == null || v.trim().isEmpty) ? 'Required' : null
+                    : null,
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Paste your private key in PEM format (OpenSSH or RSA)',
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 11),
+              ),
+            ],
+            if (_authType == 'totp') ...[
+              _buildField('Password', _passwordCtrl, '',
+                  obscure: true, required: !_isEditing),
+              const SizedBox(height: 16),
+              _buildField('TOTP Secret', _totpSecretCtrl, 'Base32 secret key',
+                  required: !_isEditing),
+              const SizedBox(height: 8),
+              const Text(
+                'Enter the TOTP secret (base32). Code will be auto-generated at login.',
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 11),
+              ),
+            ],
             const SizedBox(height: 16),
             groupsAsync.when(
               loading: () => const SizedBox(),
@@ -168,6 +209,10 @@ class _HostEditScreenState extends ConsumerState<HostEditScreen> {
         groupId: _selectedGroupId,
         password:
             _passwordCtrl.text.isNotEmpty ? _passwordCtrl.text : null,
+        privateKey:
+            _privateKeyCtrl.text.isNotEmpty ? _privateKeyCtrl.text : null,
+        totpSecret:
+            _totpSecretCtrl.text.isNotEmpty ? _totpSecretCtrl.text : null,
       );
     } else {
       notifier.addHost(
@@ -179,6 +224,10 @@ class _HostEditScreenState extends ConsumerState<HostEditScreen> {
         groupId: _selectedGroupId,
         password:
             _passwordCtrl.text.isNotEmpty ? _passwordCtrl.text : null,
+        privateKey:
+            _privateKeyCtrl.text.isNotEmpty ? _privateKeyCtrl.text : null,
+        totpSecret:
+            _totpSecretCtrl.text.isNotEmpty ? _totpSecretCtrl.text : null,
       );
     }
 

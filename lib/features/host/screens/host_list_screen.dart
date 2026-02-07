@@ -6,6 +6,8 @@ import 'package:matrix_terminal/features/host/providers/host_provider.dart';
 import 'package:matrix_terminal/features/host/screens/host_edit_screen.dart';
 import 'package:matrix_terminal/features/host/widgets/group_section.dart';
 import 'package:matrix_terminal/features/host/widgets/host_card.dart';
+import 'package:matrix_terminal/features/keychain/screens/keychain_screen.dart';
+import 'package:matrix_terminal/features/settings/screens/settings_screen.dart';
 import 'package:matrix_terminal/features/terminal/providers/session_provider.dart';
 import 'package:matrix_terminal/features/terminal/screens/terminal_screen.dart';
 
@@ -173,17 +175,11 @@ class _HostListScreenState extends ConsumerState<HostListScreen> {
   }
 
   Widget _buildKeychainTab() {
-    return const Center(
-      child: Text('Keychain (Coming Soon)',
-          style: TextStyle(color: AppColors.textSecondary)),
-    );
+    return const KeychainScreen();
   }
 
   Widget _buildSettingsTab() {
-    return const Center(
-      child: Text('Settings (Coming Soon)',
-          style: TextStyle(color: AppColors.textSecondary)),
-    );
+    return const SettingsScreen();
   }
 
   void _navigateToEditHost(Host? host) {

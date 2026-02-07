@@ -29,17 +29,32 @@ class SshSession {
       state = SessionState.connecting;
       _stateController.add(state);
 
-      final socket = await SSHSocket.connect(host.hostname, host.port);
+      final socket = await SSHSocket.connect(host.hostname, host.port,
+          timeout: const Duration(seconds: 10));
 
+      // Resolve credentials
       String? password;
       if (host.passwordRef != null) {
         password = await SecureStore.read(host.passwordRef!);
       }
 
+      List<SSHKeyPair>? identities;
+      if (host.authType == 'privateKey' && host.privateKeyRef != null) {
+        final pem = await SecureStore.read(host.privateKeyRef!);
+        if (pem != null && pem.isNotEmpty) {
+          identities = SSHKeyPair.fromPem(pem);
+        }
+      }
+
       _client = SSHClient(
         socket,
         username: host.username,
+        identities: identities,
         onPasswordRequest: () => password ?? '',
+        onUserInfoRequest: (request) {
+          // Keyboard-interactive: return password for prompts
+          return request.prompts.map((_) => password ?? '').toList();
+        },
         keepAliveInterval: const Duration(seconds: 15),
       );
 

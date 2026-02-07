@@ -24,7 +24,7 @@ class _InputBarState extends State<InputBar> {
   void _send() {
     final text = _controller.text;
     if (text.isNotEmpty) {
-      widget.onSubmit(text);
+      widget.onSubmit('$text\n');
       _controller.clear();
     }
     _focusNode.requestFocus();
