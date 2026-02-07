@@ -1088,16 +1088,322 @@ class HostsCompanion extends UpdateCompanion<Host> {
   }
 }
 
+class $ToolbarProfilesTable extends ToolbarProfiles
+    with TableInfo<$ToolbarProfilesTable, ToolbarProfile> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ToolbarProfilesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _isBuiltInMeta = const VerificationMeta(
+    'isBuiltIn',
+  );
+  @override
+  late final GeneratedColumn<bool> isBuiltIn = GeneratedColumn<bool>(
+    'is_built_in',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_built_in" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _buttonsMeta = const VerificationMeta(
+    'buttons',
+  );
+  @override
+  late final GeneratedColumn<String> buttons = GeneratedColumn<String>(
+    'buttons',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, name, isBuiltIn, buttons];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'toolbar_profiles';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ToolbarProfile> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('is_built_in')) {
+      context.handle(
+        _isBuiltInMeta,
+        isBuiltIn.isAcceptableOrUnknown(data['is_built_in']!, _isBuiltInMeta),
+      );
+    }
+    if (data.containsKey('buttons')) {
+      context.handle(
+        _buttonsMeta,
+        buttons.isAcceptableOrUnknown(data['buttons']!, _buttonsMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_buttonsMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ToolbarProfile map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ToolbarProfile(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      isBuiltIn: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_built_in'],
+      )!,
+      buttons: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}buttons'],
+      )!,
+    );
+  }
+
+  @override
+  $ToolbarProfilesTable createAlias(String alias) {
+    return $ToolbarProfilesTable(attachedDatabase, alias);
+  }
+}
+
+class ToolbarProfile extends DataClass implements Insertable<ToolbarProfile> {
+  final int id;
+  final String name;
+  final bool isBuiltIn;
+  final String buttons;
+  const ToolbarProfile({
+    required this.id,
+    required this.name,
+    required this.isBuiltIn,
+    required this.buttons,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name'] = Variable<String>(name);
+    map['is_built_in'] = Variable<bool>(isBuiltIn);
+    map['buttons'] = Variable<String>(buttons);
+    return map;
+  }
+
+  ToolbarProfilesCompanion toCompanion(bool nullToAbsent) {
+    return ToolbarProfilesCompanion(
+      id: Value(id),
+      name: Value(name),
+      isBuiltIn: Value(isBuiltIn),
+      buttons: Value(buttons),
+    );
+  }
+
+  factory ToolbarProfile.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ToolbarProfile(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      isBuiltIn: serializer.fromJson<bool>(json['isBuiltIn']),
+      buttons: serializer.fromJson<String>(json['buttons']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+      'isBuiltIn': serializer.toJson<bool>(isBuiltIn),
+      'buttons': serializer.toJson<String>(buttons),
+    };
+  }
+
+  ToolbarProfile copyWith({
+    int? id,
+    String? name,
+    bool? isBuiltIn,
+    String? buttons,
+  }) => ToolbarProfile(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    isBuiltIn: isBuiltIn ?? this.isBuiltIn,
+    buttons: buttons ?? this.buttons,
+  );
+  ToolbarProfile copyWithCompanion(ToolbarProfilesCompanion data) {
+    return ToolbarProfile(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      isBuiltIn: data.isBuiltIn.present ? data.isBuiltIn.value : this.isBuiltIn,
+      buttons: data.buttons.present ? data.buttons.value : this.buttons,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ToolbarProfile(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('isBuiltIn: $isBuiltIn, ')
+          ..write('buttons: $buttons')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name, isBuiltIn, buttons);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ToolbarProfile &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.isBuiltIn == this.isBuiltIn &&
+          other.buttons == this.buttons);
+}
+
+class ToolbarProfilesCompanion extends UpdateCompanion<ToolbarProfile> {
+  final Value<int> id;
+  final Value<String> name;
+  final Value<bool> isBuiltIn;
+  final Value<String> buttons;
+  const ToolbarProfilesCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.isBuiltIn = const Value.absent(),
+    this.buttons = const Value.absent(),
+  });
+  ToolbarProfilesCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+    this.isBuiltIn = const Value.absent(),
+    required String buttons,
+  }) : name = Value(name),
+       buttons = Value(buttons);
+  static Insertable<ToolbarProfile> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+    Expression<bool>? isBuiltIn,
+    Expression<String>? buttons,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (isBuiltIn != null) 'is_built_in': isBuiltIn,
+      if (buttons != null) 'buttons': buttons,
+    });
+  }
+
+  ToolbarProfilesCompanion copyWith({
+    Value<int>? id,
+    Value<String>? name,
+    Value<bool>? isBuiltIn,
+    Value<String>? buttons,
+  }) {
+    return ToolbarProfilesCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      isBuiltIn: isBuiltIn ?? this.isBuiltIn,
+      buttons: buttons ?? this.buttons,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (isBuiltIn.present) {
+      map['is_built_in'] = Variable<bool>(isBuiltIn.value);
+    }
+    if (buttons.present) {
+      map['buttons'] = Variable<String>(buttons.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ToolbarProfilesCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('isBuiltIn: $isBuiltIn, ')
+          ..write('buttons: $buttons')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $HostGroupsTable hostGroups = $HostGroupsTable(this);
   late final $HostsTable hosts = $HostsTable(this);
+  late final $ToolbarProfilesTable toolbarProfiles = $ToolbarProfilesTable(
+    this,
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [hostGroups, hosts];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+    hostGroups,
+    hosts,
+    toolbarProfiles,
+  ];
 }
 
 typedef $$HostGroupsTableCreateCompanionBuilder =
@@ -1853,6 +2159,187 @@ typedef $$HostsTableProcessedTableManager =
       Host,
       PrefetchHooks Function({bool groupId})
     >;
+typedef $$ToolbarProfilesTableCreateCompanionBuilder =
+    ToolbarProfilesCompanion Function({
+      Value<int> id,
+      required String name,
+      Value<bool> isBuiltIn,
+      required String buttons,
+    });
+typedef $$ToolbarProfilesTableUpdateCompanionBuilder =
+    ToolbarProfilesCompanion Function({
+      Value<int> id,
+      Value<String> name,
+      Value<bool> isBuiltIn,
+      Value<String> buttons,
+    });
+
+class $$ToolbarProfilesTableFilterComposer
+    extends Composer<_$AppDatabase, $ToolbarProfilesTable> {
+  $$ToolbarProfilesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isBuiltIn => $composableBuilder(
+    column: $table.isBuiltIn,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get buttons => $composableBuilder(
+    column: $table.buttons,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ToolbarProfilesTableOrderingComposer
+    extends Composer<_$AppDatabase, $ToolbarProfilesTable> {
+  $$ToolbarProfilesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isBuiltIn => $composableBuilder(
+    column: $table.isBuiltIn,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get buttons => $composableBuilder(
+    column: $table.buttons,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ToolbarProfilesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ToolbarProfilesTable> {
+  $$ToolbarProfilesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<bool> get isBuiltIn =>
+      $composableBuilder(column: $table.isBuiltIn, builder: (column) => column);
+
+  GeneratedColumn<String> get buttons =>
+      $composableBuilder(column: $table.buttons, builder: (column) => column);
+}
+
+class $$ToolbarProfilesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ToolbarProfilesTable,
+          ToolbarProfile,
+          $$ToolbarProfilesTableFilterComposer,
+          $$ToolbarProfilesTableOrderingComposer,
+          $$ToolbarProfilesTableAnnotationComposer,
+          $$ToolbarProfilesTableCreateCompanionBuilder,
+          $$ToolbarProfilesTableUpdateCompanionBuilder,
+          (
+            ToolbarProfile,
+            BaseReferences<
+              _$AppDatabase,
+              $ToolbarProfilesTable,
+              ToolbarProfile
+            >,
+          ),
+          ToolbarProfile,
+          PrefetchHooks Function()
+        > {
+  $$ToolbarProfilesTableTableManager(
+    _$AppDatabase db,
+    $ToolbarProfilesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ToolbarProfilesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ToolbarProfilesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ToolbarProfilesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<bool> isBuiltIn = const Value.absent(),
+                Value<String> buttons = const Value.absent(),
+              }) => ToolbarProfilesCompanion(
+                id: id,
+                name: name,
+                isBuiltIn: isBuiltIn,
+                buttons: buttons,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String name,
+                Value<bool> isBuiltIn = const Value.absent(),
+                required String buttons,
+              }) => ToolbarProfilesCompanion.insert(
+                id: id,
+                name: name,
+                isBuiltIn: isBuiltIn,
+                buttons: buttons,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ToolbarProfilesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ToolbarProfilesTable,
+      ToolbarProfile,
+      $$ToolbarProfilesTableFilterComposer,
+      $$ToolbarProfilesTableOrderingComposer,
+      $$ToolbarProfilesTableAnnotationComposer,
+      $$ToolbarProfilesTableCreateCompanionBuilder,
+      $$ToolbarProfilesTableUpdateCompanionBuilder,
+      (
+        ToolbarProfile,
+        BaseReferences<_$AppDatabase, $ToolbarProfilesTable, ToolbarProfile>,
+      ),
+      ToolbarProfile,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -1861,4 +2348,6 @@ class $AppDatabaseManager {
       $$HostGroupsTableTableManager(_db, _db.hostGroups);
   $$HostsTableTableManager get hosts =>
       $$HostsTableTableManager(_db, _db.hosts);
+  $$ToolbarProfilesTableTableManager get toolbarProfiles =>
+      $$ToolbarProfilesTableTableManager(_db, _db.toolbarProfiles);
 }

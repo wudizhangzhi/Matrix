@@ -36,7 +36,14 @@ class Hosts extends Table {
   Set<Column> get primaryKey => {id};
 }
 
-@DriftDatabase(tables: [Hosts, HostGroups])
+class ToolbarProfiles extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text()();
+  BoolColumn get isBuiltIn => boolean().withDefault(const Constant(false))();
+  TextColumn get buttons => text()();
+}
+
+@DriftDatabase(tables: [Hosts, HostGroups, ToolbarProfiles])
 class AppDatabase extends _$AppDatabase {
   AppDatabase._() : super(_openConnection());
 
@@ -44,7 +51,17 @@ class AppDatabase extends _$AppDatabase {
   static AppDatabase get instance => _instance ??= AppDatabase._();
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        onCreate: (m) => m.createAll(),
+        onUpgrade: (m, from, to) async {
+          if (from < 2) {
+            await m.createTable(toolbarProfiles);
+          }
+        },
+      );
 
   Future<List<Host>> getAllHosts() => select(hosts).get();
   Stream<List<Host>> watchAllHosts() => select(hosts).watch();
@@ -82,6 +99,22 @@ class AppDatabase extends _$AppDatabase {
 
   Future<void> deleteGroup(String id) =>
       (delete(hostGroups)..where((g) => g.id.equals(id))).go();
+
+  Future<List<ToolbarProfile>> getAllToolbarProfiles() =>
+      select(toolbarProfiles).get();
+
+  Stream<List<ToolbarProfile>> watchAllToolbarProfiles() =>
+      select(toolbarProfiles).watch();
+
+  Future<int> insertToolbarProfile(ToolbarProfilesCompanion profile) =>
+      into(toolbarProfiles).insert(profile);
+
+  Future<void> updateToolbarProfile(ToolbarProfilesCompanion profile) =>
+      (update(toolbarProfiles)..where((p) => p.id.equals(profile.id.value)))
+          .write(profile);
+
+  Future<void> deleteToolbarProfile(int id) =>
+      (delete(toolbarProfiles)..where((p) => p.id.equals(id))).go();
 }
 
 LazyDatabase _openConnection() {
