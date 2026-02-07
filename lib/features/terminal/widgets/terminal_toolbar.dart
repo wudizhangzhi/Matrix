@@ -1,41 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:matrix_terminal/app/theme.dart';
+import 'package:matrix_terminal/features/terminal/models/toolbar_button.dart';
+import 'package:matrix_terminal/features/terminal/providers/toolbar_provider.dart';
 
-class TerminalToolbar extends StatelessWidget {
+class TerminalToolbar extends ConsumerWidget {
   final void Function(String) onKey;
+  final VoidCallback? onOpenEditor;
 
-  const TerminalToolbar({super.key, required this.onKey});
+  const TerminalToolbar({super.key, required this.onKey, this.onOpenEditor});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final buttons = ref.watch(activeToolbarButtonsProvider);
+
     return Container(
       color: AppColors.surface,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: [
-            _btn('Enter', '\r', highlight: true),
-            _btn('Esc', '\x1b'),
-            _btn('Tab', '\t'),
-            _btn('Ctrl-C', '\x03'),
-            const SizedBox(width: 8),
-            _btn('\u2190', '\x1b[D'),
-            _btn('\u2192', '\x1b[C'),
-            _btn('\u2191', '\x1b[A'),
-            _btn('\u2193', '\x1b[B'),
-            const SizedBox(width: 8),
-            _btn('Home', '\x1b[H'),
-            _btn('End', '\x1b[F'),
-            _btn('PgUp', '\x1b[5~'),
-            _btn('PgDn', '\x1b[6~'),
-          ],
-        ),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+      child: Row(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: buttons.map((btn) => _buildBtn(btn)).toList(),
+              ),
+            ),
+          ),
+          _gearBtn(),
+        ],
       ),
     );
   }
 
-  Widget _btn(String label, String seq, {bool highlight = false}) {
+  Widget _buildBtn(ToolbarButton btn) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 2),
       child: Material(
@@ -43,17 +42,34 @@ class TerminalToolbar extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
         child: InkWell(
           borderRadius: BorderRadius.circular(6),
-          onTap: () => onKey(seq),
+          onTap: () => onKey(btn.sequence),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             child: Text(
-              label,
+              btn.label,
               style: TextStyle(
-                color: highlight ? AppColors.primary : AppColors.textPrimary,
+                color: btn.highlight ? AppColors.primary : AppColors.textPrimary,
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
               ),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _gearBtn() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(6),
+          onTap: onOpenEditor,
+          child: const Padding(
+            padding: EdgeInsets.all(6),
+            child: Icon(Icons.settings, color: AppColors.textSecondary, size: 18),
           ),
         ),
       ),

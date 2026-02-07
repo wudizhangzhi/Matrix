@@ -70,6 +70,20 @@ class TerminalScreen extends ConsumerWidget {
             ),
             TerminalToolbar(
               onKey: (seq) => activeSession?.writeText(seq),
+              onOpenEditor: () {
+                showModalBottomSheet(
+                  context: context,
+                  backgroundColor: AppColors.surface,
+                  isScrollControlled: true,
+                  builder: (_) => const SizedBox(
+                    height: 300,
+                    child: Center(
+                      child: Text('Toolbar Editor (coming soon)',
+                          style: TextStyle(color: AppColors.textPrimary)),
+                    ),
+                  ),
+                );
+              },
             ),
           ],
         ),
