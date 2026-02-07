@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:matrix_terminal/app/theme.dart';
 import 'package:matrix_terminal/core/clipboard/clipboard_service.dart';
 import 'package:matrix_terminal/features/terminal/models/toolbar_button.dart';
@@ -30,7 +31,7 @@ class TerminalToolbar extends ConsumerWidget {
               ),
             ),
           ),
-          _pasteBtn(context),
+          _imageBtn(context),
           _gearBtn(),
         ],
       ),
@@ -62,17 +63,17 @@ class TerminalToolbar extends ConsumerWidget {
     );
   }
 
-  Widget _pasteBtn(BuildContext context) {
+  Widget _imageBtn(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(left: 2),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(6),
-          onTap: () => _handlePaste(context),
+          onTap: () => _showImageOptions(context),
           child: const Padding(
             padding: EdgeInsets.all(6),
-            child: Icon(Icons.content_paste,
+            child: Icon(Icons.image_outlined,
                 color: AppColors.textSecondary, size: 18),
           ),
         ),
@@ -80,7 +81,74 @@ class TerminalToolbar extends ConsumerWidget {
     );
   }
 
-  Future<void> _handlePaste(BuildContext context) async {
+  void _showImageOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surface,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading:
+                  const Icon(Icons.photo_library, color: AppColors.primary),
+              title: const Text('Pick from Gallery',
+                  style: TextStyle(color: AppColors.textPrimary)),
+              onTap: () {
+                Navigator.pop(ctx);
+                _pickImage(context, ImageSource.gallery);
+              },
+            ),
+            ListTile(
+              leading:
+                  const Icon(Icons.camera_alt, color: AppColors.primary),
+              title: const Text('Take Photo',
+                  style: TextStyle(color: AppColors.textPrimary)),
+              onTap: () {
+                Navigator.pop(ctx);
+                _pickImage(context, ImageSource.camera);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.content_paste,
+                  color: AppColors.primary),
+              title: const Text('Paste from Clipboard',
+                  style: TextStyle(color: AppColors.textPrimary)),
+              onTap: () {
+                Navigator.pop(ctx);
+                _handleClipboardPaste(context);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickImage(BuildContext context, ImageSource source) async {
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(source: source, imageQuality: 85);
+    if (picked == null) return;
+
+    final bytes = await picked.readAsBytes();
+
+    if (bytes.length > 2 * 1024 * 1024) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Image too large (max 2MB)')),
+        );
+      }
+      return;
+    }
+
+    if (!context.mounted) return;
+    final result = await showPasteImageDialog(context, bytes);
+    if (result != null) {
+      onKey(result);
+    }
+  }
+
+  Future<void> _handleClipboardPaste(BuildContext context) async {
     final imageBytes = await ClipboardImageService.getClipboardImage();
     if (imageBytes == null) {
       final textData = await Clipboard.getData(Clipboard.kTextPlain);
@@ -116,7 +184,8 @@ class TerminalToolbar extends ConsumerWidget {
           onTap: onOpenEditor,
           child: const Padding(
             padding: EdgeInsets.all(6),
-            child: Icon(Icons.settings, color: AppColors.textSecondary, size: 18),
+            child:
+                Icon(Icons.settings, color: AppColors.textSecondary, size: 18),
           ),
         ),
       ),

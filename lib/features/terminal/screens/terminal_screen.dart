@@ -66,6 +66,8 @@ class TerminalScreen extends ConsumerWidget {
                           fontSize: fontSize,
                           fontFamily: 'JetBrainsMono',
                         ),
+                        deleteDetection: true,
+                        autofocus: true,
                       ),
                       _ConnectionOverlay(
                         session: session,
