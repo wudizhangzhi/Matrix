@@ -1,10 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:drift/drift.dart' hide Column;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:matrix_terminal/app/theme.dart';
+import 'package:matrix_terminal/core/notifications/terminal_monitor.dart';
+import 'package:matrix_terminal/core/notifications/notification_service.dart';
+import 'package:matrix_terminal/core/storage/database.dart';
 import 'package:matrix_terminal/core/storage/secure_store.dart';
+import 'package:matrix_terminal/features/host/providers/host_provider.dart';
 
 /// Terminal font size setting, persisted via Riverpod.
 final fontSizeProvider = StateProvider<double>((ref) => 14.0);
+
+final connectionNotifProvider = StateProvider<bool>((ref) => true);
+final commandNotifProvider = StateProvider<bool>((ref) => true);
+
+final notificationPatternsProvider =
+    StreamProvider<List<NotificationPattern>>((ref) {
+  final db = ref.watch(databaseProvider);
+  return db.watchNotificationPatterns();
+});
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -90,6 +105,134 @@ class SettingsScreen extends ConsumerWidget {
 
         const SizedBox(height: 24),
 
+        // Notifications section
+        const Text(
+          'NOTIFICATIONS',
+          style: TextStyle(
+            color: AppColors.textSecondary,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 1,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Card(
+          child: Column(
+            children: [
+              SwitchListTile(
+                title: const Text('Connection Status',
+                    style: TextStyle(color: AppColors.textPrimary)),
+                subtitle: const Text('Notify on disconnect/reconnect',
+                    style: TextStyle(
+                        color: AppColors.textSecondary, fontSize: 12)),
+                value: ref.watch(connectionNotifProvider),
+                activeColor: AppColors.primary,
+                onChanged: (v) async {
+                  ref.read(connectionNotifProvider.notifier).state = v;
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.setBool(
+                      TerminalMonitor.keyConnectionNotif, v);
+                },
+              ),
+              const Divider(height: 1),
+              SwitchListTile(
+                title: const Text('Command Completion',
+                    style: TextStyle(color: AppColors.textPrimary)),
+                subtitle: const Text('Notify when commands finish',
+                    style: TextStyle(
+                        color: AppColors.textSecondary, fontSize: 12)),
+                value: ref.watch(commandNotifProvider),
+                activeColor: AppColors.primary,
+                onChanged: (v) async {
+                  ref.read(commandNotifProvider.notifier).state = v;
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.setBool(TerminalMonitor.keyCommandNotif, v);
+                },
+              ),
+              const Divider(height: 1),
+              ListTile(
+                title: const Text('Test Notification',
+                    style: TextStyle(color: AppColors.primary)),
+                leading: const Icon(Icons.notifications_active,
+                    color: AppColors.primary),
+                onTap: () {
+                  NotificationService.showConnectionNotification(
+                    title: 'Test',
+                    body: 'Notifications are working!',
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+
+        // Custom patterns
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'CUSTOM TRIGGERS',
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 1,
+              ),
+            ),
+            IconButton(
+              icon:
+                  const Icon(Icons.add, color: AppColors.primary, size: 20),
+              onPressed: () => _addPattern(context, ref),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        ref.watch(notificationPatternsProvider).when(
+              loading: () => const SizedBox(),
+              error: (_, __) => const SizedBox(),
+              data: (patterns) => Card(
+                child: Column(
+                  children: patterns.isEmpty
+                      ? [
+                          const ListTile(
+                            title: Text('No custom triggers',
+                                style: TextStyle(
+                                    color: AppColors.textSecondary)),
+                            subtitle: Text(
+                                'Tap + to add a regex pattern trigger',
+                                style: TextStyle(
+                                    color: AppColors.textSecondary,
+                                    fontSize: 12)),
+                          ),
+                        ]
+                      : patterns
+                          .map((p) => ListTile(
+                                title: Text(p.title,
+                                    style: const TextStyle(
+                                        color: AppColors.textPrimary)),
+                                subtitle: Text(p.pattern,
+                                    style: const TextStyle(
+                                        color: AppColors.textSecondary,
+                                        fontFamily: 'JetBrainsMono',
+                                        fontSize: 11)),
+                                trailing: IconButton(
+                                  icon: const Icon(Icons.delete_outline,
+                                      color: AppColors.error, size: 20),
+                                  onPressed: () {
+                                    ref
+                                        .read(databaseProvider)
+                                        .deleteNotificationPattern(p.id);
+                                  },
+                                ),
+                              ))
+                          .toList(),
+                ),
+              ),
+            ),
+
+        const SizedBox(height: 24),
+
         // About section
         const Text(
           'ABOUT',
@@ -150,6 +293,66 @@ class SettingsScreen extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+
+  void _addPattern(BuildContext context, WidgetRef ref) {
+    final titleCtrl = TextEditingController();
+    final patternCtrl = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: const Text('Add Custom Trigger',
+            style: TextStyle(color: AppColors.textPrimary)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: titleCtrl,
+              style: const TextStyle(color: AppColors.textPrimary),
+              decoration: const InputDecoration(
+                labelText: 'Notification Title',
+                hintText: 'Build Complete',
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: patternCtrl,
+              style: const TextStyle(
+                color: AppColors.textPrimary,
+                fontFamily: 'JetBrainsMono',
+                fontSize: 13,
+              ),
+              decoration: const InputDecoration(
+                labelText: 'Regex Pattern',
+                hintText: 'BUILD SUCCESSFUL',
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              if (titleCtrl.text.trim().isEmpty ||
+                  patternCtrl.text.trim().isEmpty) return;
+              ref.read(databaseProvider).insertNotificationPattern(
+                    NotificationPatternsCompanion(
+                      title: Value(titleCtrl.text.trim()),
+                      pattern: Value(patternCtrl.text.trim()),
+                    ),
+                  );
+              Navigator.pop(ctx);
+            },
+            child: const Text('Add'),
+          ),
+        ],
+      ),
     );
   }
 
