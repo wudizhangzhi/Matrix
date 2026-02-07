@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:matrix_terminal/core/background/background_service.dart';
 import 'package:matrix_terminal/core/ssh/ssh_service.dart';
 import 'package:matrix_terminal/core/storage/database.dart';
 import 'package:matrix_terminal/features/host/providers/host_provider.dart';
@@ -47,6 +48,9 @@ class SessionManagerNotifier extends Notifier<SessionManagerState> {
 
     // Update last connected time
     ref.read(databaseProvider).updateLastConnected(host.id);
+
+    // Start background service to keep connections alive
+    await BackgroundServiceManager.startService(state.sessions.length);
   }
 
   void switchTo(int index) {
@@ -69,6 +73,10 @@ class SessionManagerNotifier extends Notifier<SessionManagerState> {
     }
 
     state = state.copyWith(sessions: newSessions, activeIndex: newIndex);
+
+    if (state.sessions.isEmpty) {
+      BackgroundServiceManager.stopService();
+    }
   }
 
   void closeAll() {
@@ -76,6 +84,7 @@ class SessionManagerNotifier extends Notifier<SessionManagerState> {
       session.close();
     }
     state = const SessionManagerState();
+    BackgroundServiceManager.stopService();
   }
 }
 
