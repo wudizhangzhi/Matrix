@@ -340,7 +340,9 @@ class SettingsScreen extends ConsumerWidget {
           TextButton(
             onPressed: () {
               if (titleCtrl.text.trim().isEmpty ||
-                  patternCtrl.text.trim().isEmpty) return;
+                  patternCtrl.text.trim().isEmpty) {
+                return;
+              }
               ref.read(databaseProvider).insertNotificationPattern(
                     NotificationPatternsCompanion(
                       title: Value(titleCtrl.text.trim()),
